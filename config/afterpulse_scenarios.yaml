@@ -1,0 +1,44 @@
+# =============================================================================
+# 两种典型 PMT afterpulse 分布情形演示 (AP 组数据已接入)
+#   PMT0 -> LV2305 (APP≈10%, 中 afterpulse)
+#   PMT1 -> LV2358 (APP≈5%,  低 afterpulse)
+#   (LV2229 因统计量太小暂不纳入分析参考)
+# 演示逐 PMT PDF (AP-05) + 窗口扫描输出本底差异。
+# =============================================================================
+
+simulation:
+  run_id: "app_scenarios"
+  duration_us: 1.0e6          # 1 s, 足够采样统计
+  seed: 42
+  timeline:
+    dark_rate_hz_per_pmt: 0.0
+    background_rate_hz: 0.0
+
+detector:
+  n_pmts: 2
+
+afterpulse:
+  pdf_file: null
+  pmt_pdfs:
+    0: "data/app_pdf_LV2305.npz"
+    1: "data/app_pdf_LV2358.npz"
+  max_npe: 30
+
+muon:
+  flux_per_m2_hz: 1.0
+  active_area_m2: 1.0
+  track_length_mean_cm: 10.0
+  light_yield_pe_keV: 0.05
+
+signal_window:
+  length_us: 1.0
+  step_us: 0.1
+  threshold_pe_min: 1
+  threshold_pe_max: 100000
+  require_no_physics_s1: true
+  dead_zone:
+    s1_after_ns: 0
+
+output:
+  save_hits: false
+  save_windows: true

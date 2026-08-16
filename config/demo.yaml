@@ -1,0 +1,16 @@
+# 演示配置: 快速跑通全流程
+simulation:
+  run_id: "demo"
+  duration_us: 2000
+  seed: 7
+  timeline:
+    dark_rate_hz_per_pmt: 1.0e5
+    background_rate_hz: 1.0e3
+detector:
+  n_pmts: 100
+signal_window:
+  threshold_pe_min: 5
+  threshold_pe_max: 100000
+  step_us: 20
+muon:
+  flux_per_m2_hz: 0.0

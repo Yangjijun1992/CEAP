@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# 运行输出（模拟结果/图，不纳入版本控制）
+output/
+
+# 工具内部文件
+.codegraph
+.omo
+
+# 环境
+.conda/
+.venv/
+venv/

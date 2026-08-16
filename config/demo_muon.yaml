@@ -1,0 +1,24 @@
+simulation:
+  run_id: "demo_muon"
+  duration_us: 5000
+  seed: 7
+  timeline:
+    dark_rate_hz_per_pmt: 0.0
+    background_rate_hz: 0.0
+detector:
+  n_pmts: 10
+  target:
+    light_yield_pe_keV: 0.05
+muon:
+  flux_per_m2_hz: 100.0
+  active_area_m2: 1.0
+  track_length_mean_cm: 10.0
+  light_yield_pe_keV: 0.05
+afterpulse:
+  pdf_file: /tmp/syn_pdf.npz
+signal_window:
+  threshold_pe_min: 1
+  threshold_pe_max: 1000000
+  step_us: 500
+  dead_zone:
+    s1_after_ns: 100000
