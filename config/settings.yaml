@@ -11,40 +11,40 @@
 # =============================================================================
 
 simulation:
-  run_id: "run0"             # 本次运行标识
-  duration_us: 1e6           # 模拟总时长 (μs)。需求 SIM-01: 支持 >10 s
-  seed: 2024                 # 随机种子 (None = 不固定)
-  parallel_workers: 1        # 并行 worker 数 (>=1)
-  output_dir: "output"       # 结果输出目录
+  run_id: "run0" # 本次运行标识
+  duration_us: 1e6 # 模拟总时长 (μs)。需求 SIM-01: 支持 >10 s
+  seed: 2024 # 随机种子 (None = 不固定)
+  parallel_workers: 1 # 并行 worker 数 (>=1)
+  output_dir: "output" # 结果输出目录
 
   # SIM-05 统计精度控制
-  target_uncertainty_pct: 5.0    # 目标本底率相对误差 < X%
+  target_uncertainty_pct: 5.0 # 目标本底率相对误差 < X%
 
   # 时间线注入率 (SIM-01)。[TBD] D-05 后期提供真实值。
   timeline:
-    dark_rate_hz_per_pmt: 0.0    # 单 PE 暗计数率 (Hz/PMT)
-    background_rate_hz: 0.0      # 物理本底 S1 触发率 (Hz)
+    dark_rate_hz_per_pmt: 0.0 # 单 PE 暗计数率 (Hz/PMT)
+    background_rate_hz: 0.0 # 物理本底 S1 触发率 (Hz)
 
 detector:
   # [TBD] D 组后期提供。当前为占位。
-  n_pmts: 0               # PMT 总数 (D-01)。>0 时优先于 pmt_list
-  pmt_list: []               # D-01: PMT 列表(数量可由注释给出)。e.g. [0,1,...,N]
-  single_pe:                # D-02: 单 PE 响应参数
-    quantum_efficiency: 0.0  #   量子效率
-    collection_efficiency: 0.0  # 收集效率
-    gain: 0.0               #   增益
-  target:                   # D-03: 液氙靶性质
-    active_mass_kg: 0.0      #   有效质量/体积
-    light_yield_pe_keV: 0.0  #   光产额 (每 keV 光子数)
-    quenching: {er: 0.0, nr: 0.0}  # 电子/核反冲淬灭因子
-  daq:                      # D-04: DAQ 时间结构
+  n_pmts: 56 # PMT 总数 (D-01)。>0 时优先于 pmt_list
+  pmt_list: [] # D-01: PMT 列表(数量可由注释给出)。e.g. [0,1,...,N]
+  single_pe: # D-02: 单 PE 响应参数
+    quantum_efficiency: 34.0 #   量子效率
+    collection_efficiency: 46.0 # 收集效率
+    gain: 5.0e6 #   增益
+  target: # D-03: 液氙靶性质
+    active_mass_kg: 10.0 # kg  有效质量/体积
+    light_yield_pe_keV: 50.0 #   光产额 (每 keV 光子数)
+    quenching: { er: 0.120, nr: 0.12 } # 电子/核反冲淬灭因子
+  daq: # D-04: DAQ 时间结构
     sample_rate_mhz: 1.0
     waveform_length_us: 0.0
     dead_time_us: 0.0
-  background_rates: []       # D-05: 背景事例率总表(占位)
-  environment:              # D-06: 环境条件
-    depth_mwe: 0.0
-    temperature_k: 0.0
+  background_rates: [] # D-05: 背景事例率总表(占位)
+  environment: # D-06: 环境条件
+    depth_mwe: 25.0
+    temperature_k: 168.0
 
 afterpulse:
   # 二维 PDF (时间差, 电荷大小) —— AP 组数据已生成于 data/app_pdf_*.npz。
@@ -56,29 +56,29 @@ afterpulse:
   params:
     method: "placeholder"
   normalization:
-    p_ap_total: 0.0         # AP-03: 每主 PE 全程总 after pulse 概率 (由 PDF 文件自带)
-    p_ap_1us: 0.0           #       1 μs 窗内概率 (由 PDF 文件自带)
-  max_npe: 30               # AP-04: 最大电荷多重性 (与 data/ PDF 电荷轴上界一致)
+    p_ap_total: 0.0 # AP-03: 每主 PE 全程总 after pulse 概率 (由 PDF 文件自带)
+    p_ap_1us: 0.0 #       1 μs 窗内概率 (由 PDF 文件自带)
+  max_npe: 30 # AP-04: 最大电荷多重性 (与 data/ PDF 电荷轴上界一致)
 
-muon:                        # M 组参数 [TBD]
-  flux_per_m2_hz: 0.0        # M-01: 通量 (Hz/m²)
-  zenith: {type: "cos", param: 2.0}  # M-01: 角分布
-  active_area_m2: 0.0        # M-02: 探测器有效面积
-  dedx_mev_cm: 2.0           # M-03: 平均 dE/dx (~2 MeV/cm)
-  track_length_mean_cm: 0.0
-  light_yield_pe_keV: 0.0    # M-04: S1 光产额(必要时覆盖 detector 值)
-  s1_sigma_rel: 0.1          # M-04: S1 PE 涨落(Fano+光子统计近似)
+muon: # M 组参数 [TBD]
+  flux_per_m2_hz: 47.50 # M-01: 通量 (Hz/m²)
+  zenith: { type: "cos", param: 2.0 } # M-01: 角分布
+  active_area_m2: 0.0314 # M-02: 探测器有效面积
+  dedx_mev_cm: 2.0 # M-03: 平均 dE/dx (~2 MeV/cm)
+  track_length_mean_cm: 25.0
+  light_yield_pe_keV: 50.0 # M-04: S1 光产额(必要时覆盖 detector 值)
+  s1_sigma_rel: 0.1 # M-04: S1 PE 涨落(Fano+光子统计近似)
 
-signal_window:               # S 组
-  length_us: 1.0             # S-01: CEvNS 搜索窗 1 μs
-  step_us: 0.5               # S-01: 滑动步长 (0 = 连续/1ns 步进, 极慢, 慎用)
-  threshold_pe_min: 120      # S-02: 信号阈值下界
-  threshold_pe_max: 240      # S-02: 信号阈值上界
-  require_no_physics_s1: true  # S-03: 无物理 S1 才计数
-  dead_zone:                # S-04: 死区排除
-    s1_after_ns: 1000        #   主脉冲 S1 区间 0-X ns 剔除
-    exclude_muon_s2: true    #   μ 子 S2 区间剔除
+signal_window: # S 组
+  length_us: 1.0 # S-01: CEvNS 搜索窗 1 μs
+  step_us: 0.5 # S-01: 滑动步长 (0 = 连续/1ns 步进, 极慢, 慎用)
+  threshold_pe_min: 120 # S-02: 信号阈值下界
+  threshold_pe_max: 240 # S-02: 信号阈值上界
+  require_no_physics_s1: true # S-03: 无物理 S1 才计数
+  dead_zone: # S-04: 死区排除
+    s1_after_ns: 1000 #   主脉冲 S1 区间 0-X ns 剔除
+    exclude_muon_s2: true #   μ 子 S2 区间剔除
 
-output:                      # S-05
-  save_hits: false           # 是否保存全部击中列表(大数据, 谨慎)
-  save_windows: true         # 是否保存超阈值窗口详细信息
+output: # S-05
+  save_hits: false # 是否保存全部击中列表(大数据, 谨慎)
+  save_windows: true # 是否保存超阈值窗口详细信息

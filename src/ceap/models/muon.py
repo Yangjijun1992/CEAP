@@ -24,9 +24,18 @@ class MuonModel:
         self.dedx_mev_cm = float(mu.get("dedx_mev_cm", 2.0))
         track_mean_cm = float(mu.get("track_length_mean_cm", 0.0))
         self.track_length_mean_cm = track_mean_cm
-        # 光产额：优先用 muon 里的覆盖值，否则用 detector 值
+        # 光产额：优先用 muon 里的覆盖值，否则用 detector 值。
+        # 单位 = 光子/keV (LXe 本征光产额 ~50 ph/keV)。
+        # 有效 PE/keV = 光子/keV × 量子效率(QE) × 收集效率(CE)。
+        det = cfg.get("detector") or {}
         ly = mu.get("light_yield_pe_keV")
-        self.ly = float(ly if ly else (cfg.get("detector") or {}).get("target", {}).get("light_yield_pe_keV", 0.0))
+        ly_ph_per_kev = float(ly if ly else det.get("target", {}).get("light_yield_pe_keV", 0.0))
+        spe = det.get("single_pe") or {}
+        qe = float(spe.get("quantum_efficiency", 0.0)) / 100.0
+        ce = float(spe.get("collection_efficiency", 0.0)) / 100.0
+        det_eff = qe * ce
+        # 若 QE/CE 未设置(占位 0)，则把 light_yield 直接视为有效 PE/keV
+        self.ly = ly_ph_per_kev * det_eff if det_eff > 0 else ly_ph_per_kev
         self.s1_sigma_rel = float(mu.get("s1_sigma_rel", 0.1))
         # S1 时间区间 (用于死区): 取 detector.daq 波形长度或默认
         dag = (cfg.get("detector") or {}).get("daq") or {}

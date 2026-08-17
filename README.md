@@ -17,8 +17,8 @@ export PYTHONPATH=$PWD/src
 # 运行演示（三种典型 PMT afterpulse 分布情形，逐 PMT PDF）
 python -m ceap.cli --config config/afterpulse_scenarios.yaml
 
-# 10 万次 μ子大规模模拟（假信号率/PE/宽度/Δt 直方图）
-python -m ceap.tools.muon_s1_sim_100k --n-muons 100000 --rate 10
+# 10 万次 μ子大规模模拟（参数取自 config/settings.yaml，可 --rate 覆盖）
+python -m ceap.tools.muon_s1_sim_100k --n-muons 100000
 
 # 绘制 afterpulse 2D PDF（归一化前后对比）
 python -m ceap.tools.plot_app_pdfs
@@ -73,7 +73,7 @@ YAML 配置 ──► Config.loader（默认 + 用户覆盖递归合并）
 
 - 线性归一化模型（AP-02）：`p_ap_total = APP / <事件面积>`，每主 PE 以 `p_ap_total`
   概率独立产生 afterpulse（二项抽样）。
-- 对主脉冲总 PE 数，从二维 PDF（时间差 × 电荷，dt 0–60 μs、npe 0.5–30.5 PE）独立为
+- 对主脉冲总 PE 数，从二维 PDF（时间差 × 电荷，dt 0–60 μs、50 ns/bin，npe 0.5–30.5 PE、1 PE/bin）独立为
   各 PMT 抽样 (dt, npe)；`afterpulse.pmt_pdfs` 可配置逐 PMT PDF（AP-05）。
 - 二维 PDF 由 `tools/app_pdf_builder.py` 从 `pmt_analysis` 原始散点数据生成（`data/app_pdf_*.npz`）。
 
@@ -100,31 +100,36 @@ YAML 配置 ──► Config.loader（默认 + 用户覆盖递归合并）
 
 ## 探测器参数
 
-探测器参数在 `config/settings.yaml` 的 `detector` 段集中配置（D 组，标注 [TBD] 的为后期真实值）：
+探测器参数在 `config/settings.yaml` 的 `detector` 段集中配置（D 组，2026-08-17 已更新为参考值）：
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| `n_pmts` / `pmt_list` | `0` / `[]` | PMT 总数 / 列表（D-01）[TBD] |
-| `single_pe.quantum_efficiency` | `0.0` | 量子效率（D-02）[TBD] |
-| `single_pe.collection_efficiency` | `0.0` | 收集效率（D-02）[TBD] |
-| `single_pe.gain` | `0.0` | 增益（D-02）[TBD] |
-| `target.active_mass_kg` | `0.0` | 液氙有效质量（D-03）[TBD] |
-| `target.light_yield_pe_keV` | `0.0` | 光产额（每 keV PE 数）（D-03）[TBD] |
-| `target.quenching` | `{er: 0, nr: 0}` | 电子 / 核反冲淬灭因子（D-03）[TBD] |
-| `daq.sample_rate_mhz` | `1.0` | 采样率（D-04）[TBD] |
+| `n_pmts` / `pmt_list` | `56` / `[]` | PMT 总数 / 列表（D-01） |
+| `single_pe.quantum_efficiency` | `34.0` | 量子效率 %（D-02） |
+| `single_pe.collection_efficiency` | `46.0` | 收集效率 %（D-02） |
+| `single_pe.gain` | `5.0e6` | 增益（D-02） |
+| `target.active_mass_kg` | `10.0` | 液氙有效质量（D-03） |
+| `target.light_yield_pe_keV` | `50.0` | 光产额（每 keV 光子数，本征 ph/keV）（D-03） |
+| `target.quenching` | `{er: 0.12, nr: 0.12}` | 电子 / 核反冲淬灭因子（D-03）⚠ ER 建议 ~0.85 |
+| `daq.sample_rate_mhz` | `1.0` | 采样率（D-04） |
 | `daq.waveform_length_us` | `0.0` | 波形长度（决定 S1 死区时长）[TBD] |
 | `daq.dead_time_us` | `0.0` | DAQ 死区时间（D-04）[TBD] |
 | `background_rates` | `[]` | 背景事例率总表（D-05）[TBD] |
-| `environment.depth_mwe` / `temperature_k` | `0.0` / `0.0` | 环境深度 / 温度（D-06）[TBD] |
+| `environment.depth_mwe` / `temperature_k` | `25.0` / `168.0` | 环境深度 / 温度（D-06） |
 
-**当前分析使用的参考场景**（10 万次 μ 子模拟）：
+**μ子参数（M 组，2026-08-17 更新）**：通量 47.5 Hz/m²、有效面积 0.0314 m²
+（20 cm 直径，→ μ子率 **1.49 Hz**）、dE/dx 2 MeV/cm、径迹 25 cm（→ 50 MeV 沉积）、
+有效光产额 = 50 ph/keV × 34% × 46% = **7.82 PE/keV**。
+
+**当前分析使用的参考场景**（10 万次 μ 子模拟，参数取自 settings.yaml）：
 
 | 参数 | 数值 |
 |------|------|
 | PMT 数量 | 56 只（均匀接收） |
-| μ 子 S1 总 PE | 1,000,000 PE（120 MeV 沉积） |
-| 每 PMT 主脉冲 PE | ~17,857 PE |
+| μ 子 S1 总 PE | 391,000 PE（50 MeV 沉积 × 7.82 PE/keV） |
+| 每 PMT 主脉冲 PE | ~6,982 PE |
 | PMT APP | 5%（LV2358 PDF，app≈5.3%） |
+| μ子事例率 | 1.49 Hz（47.5 Hz/m² × 0.0314 m²） |
 | 信号窗 / 阈值 | 1 μs / 120–240 PE（CEvNS 阈值窗） |
 | 死区建议 | S1 后 ≥ 5 μs |
 
@@ -157,15 +162,17 @@ CEAP/
 | [docs/PMT_Afterpulse_Muon_S1_100k_Analysis_Report.md](docs/PMT_Afterpulse_Muon_S1_100k_Analysis_Report.md) | 10 万次 μ子大规模模拟报告 |
 | [docs/app_area_vs_delta_time.md](docs/app_area_vs_delta_time.md) | APP 原始数据说明（pmt_analysis 导出） |
 
-## 关键结果（10 万次 μ子，μ子率 10 Hz）
+## 关键结果（10 万次 μ子，μ子率 1.49 Hz，S1 391k PE，CE=46%）
 
 | 指标 | 数值 |
 |------|------|
-| 每 μ子假信号数 | 10.15 |
-| 假信号率（@10 Hz μ子率） | 101.5 Hz |
-| 假信号 PE 均值 | 181.2 PE |
-| 假信号时间宽度均值 | 0.95 μs |
-| 假信号距 μ子 Δt 均值 | 4.25 μs |
+| 每 μ子假信号数 | 9.92 |
+| 假信号率（@1.49 Hz μ子率） | 14.80 Hz |
+| 假信号 PE 均值 | 171.5 PE |
+| 假信号时间宽度均值 | 1.00 μs |
+| 假信号距 μ子 Δt 均值 | 3.55 μs |
+| 窗内 PE∈[120,240] 占比 | 12.56% |
+| 能谱幂指数 dN/dPE ∝ PE^(-α) | α ≈ 0.97（≈1/PE） |
 
 详见 [100k 分析报告](docs/PMT_Afterpulse_Muon_S1_100k_Analysis_Report.md)。
 
