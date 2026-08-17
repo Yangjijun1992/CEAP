@@ -181,7 +181,3 @@ CEAP/
 - Python ≥ 3.9
 - numpy, PyYAML
 - scipy（可选）, matplotlib（绘图）
-
-## License
-
-© Yangjijun 2026
