@@ -208,12 +208,44 @@ def plot_delta_time_grid():
     plt.close(fig)
 
 
+def plot_2d_full_range(pmt: str, label: str, dt_max: float = 60.0, area_max: float = 40.0):
+    """LV2358 原始散点二维图: dt 至 dt_max μs, area 至 area_max PE (log 色标)。"""
+    dt_us, area_pe = _scatter(pmt)
+
+    fig, ax = plt.subplots(figsize=(11, 7))
+    hist = ax.hist2d(
+        dt_us, area_pe,
+        bins=[200, 100],
+        range=[[0, dt_max], [0, area_max]],
+        cmap="jet",
+        density=True,
+        norm=matplotlib.colors.LogNorm(),
+    )
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="4%", pad=0.12)
+    cbar = plt.colorbar(hist[3], ax=cax)
+    cbar.set_label(r"Density [arb.]", fontsize=10)
+    cbar.ax.tick_params(labelsize=8)
+    ax.set_xlim(0, dt_max)
+    ax.set_ylim(0, area_max)
+    ax.set_xlabel(r"Time Delay [$\mu$s]", fontsize=12)
+    ax.set_ylabel("Afterpulse Area [PE]", fontsize=12)
+    ax.set_title(f"{pmt} — {label} — {len(dt_us)} afterpulses\n"
+                 r"Afterpulse Area vs $\Delta$t (full range)", fontsize=12)
+    ax.tick_params(direction="in", labelsize=9, length=4, width=1)
+    fig.tight_layout()
+    fig.savefig(OUT_DIR / f"app_{pmt}_2d_dt60_area40.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for pmt in PMTS:
         plot_2d_before_after(pmt, PMTS[pmt][2])
         plot_pdf_marginals(pmt, PMTS[pmt][2])
     plot_delta_time_grid()
+    # 全范围二维图: 本次只出 LV2358 (dt→60us, area→40PE)
+    plot_2d_full_range("LV2358", PMTS["LV2358"][2])
     print(f"plots written to {OUT_DIR}/")
 
 
